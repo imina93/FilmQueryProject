@@ -1,6 +1,7 @@
 package com.skilldistillery.filmquery.entities;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Film {
@@ -48,7 +49,7 @@ public class Film {
 	private double replacementCost;
 	private String rating;
 	private String specialFeatures;
-	private ArrayList<Actor> filmCast;
+	private List<Actor> filmCast;
 	
 	
 	public Film(int id, String title, String description, int releaseYear, int languageId, int rentalDuration,
@@ -153,6 +154,13 @@ public class Film {
 	public void setSpecialFeatures(String specialFeatures) {
 		this.specialFeatures = specialFeatures;
 	}
+	public List<Actor> getFilmCast() {
+		return filmCast;
+	}
+	public void setFilmCast(List<Actor> filmCast) {
+		this.filmCast = filmCast;
+	}
+	
 }
 
 
