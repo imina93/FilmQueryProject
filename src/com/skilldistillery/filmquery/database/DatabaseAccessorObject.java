@@ -51,7 +51,50 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 				film.setSpecialFeatures(filmResult.getString("special_features"));
 				DatabaseAccessorObject db = new DatabaseAccessorObject();
 				List<Actor> cast = db.findActorsByFilmId(filmId);
+				film.setFilmCast(cast);      
+			}
+			filmResult.close();
+			stmt.close();
+			conn.close();
+		} catch (SQLException e) {
+			System.err.println("Database error:");
+			System.err.println("Id not found.");
+			System.err.println(e);
+		}
+		return film;
+	}
+	public Film findFilmByKeyword(String keyword) {
+		Film film = null;
+		String searchPhrase = keyword;
+		try {
+			Connection conn = DriverManager.getConnection(URL, user, pass);
+
+			String sql = "SELECT title, description FROM film WHERE (title LIKE ? OR description LIKE ?);";
+		
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setString(1, "'%" + searchPhrase + "%'");
+			stmt.setString(2, "'%" + searchPhrase + "%'");
+			ResultSet filmResult = stmt.executeQuery();
+		
+			if (filmResult.next()) {
+				film = new Film();
+				film.setId(filmResult.getInt("id"));
+				film.setTitle(filmResult.getString("title"));
+				film.setDescription(filmResult.getString("description"));
+				film.setReleaseYear(filmResult.getInt("release_year"));
+				film.setLanguageId(filmResult.getInt("language_id"));
+				film.setRentalDuration(filmResult.getInt("rental_duration"));
+				film.setRentalRate(filmResult.getDouble("rental_rate"));
+				film.setLength(filmResult.getInt("length"));
+				film.setReplacementCost(filmResult.getDouble("replacement_cost"));
+				film.setRating(filmResult.getString("rating"));
+				film.setSpecialFeatures(filmResult.getString("special_features"));
+				DatabaseAccessorObject db = new DatabaseAccessorObject();
+				int filmId = film.getId();
+				List<Actor> cast = db.findActorsByFilmId(filmId);
 				film.setFilmCast(cast);
+			} else {
+				System.out.println("Error");
 			}
 			filmResult.close();
 			stmt.close();
@@ -61,6 +104,7 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 			System.err.println(e);
 		}
 		return film;
+	
 	}
 
 	@Override
@@ -114,4 +158,8 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		}
 		return filmCast;
 	}
+	
+	// Need to return explanation if film search is Null
+	// Need to display language
+	// Need to fix search by keyword
 }
