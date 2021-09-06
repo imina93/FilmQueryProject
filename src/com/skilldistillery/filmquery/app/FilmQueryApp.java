@@ -49,16 +49,10 @@ public class FilmQueryApp {
 			int option = input.nextInt();
 			switch (option) {
 			case 1: 
-				System.out.println("Enter film id: ");
-				System.out.println();
-				int filmId = input.nextInt();
-				System.out.println(db.findFilmById(filmId));
+				idSearch(input);
 				break;
 			case 2:
-				System.out.println("Enter keyword: ");
-				System.out.println();
-				String keyword = input.next();
-				System.out.println(((DatabaseAccessorObject) db).findFilmByKeyword(keyword));
+				keywordSearch(input);
 				break;
 			case 3:
 				menu = false;
@@ -71,13 +65,42 @@ public class FilmQueryApp {
 		}
 	}
 
+	private void keywordSearch(Scanner input) {
+		System.out.println("Enter keyword: ");
+		String keyword = input.next();
+		List<Film> filmList = db.findFilmByKeyword(keyword);
+		if (filmList.isEmpty()) {
+			System.err.println("No results found.");
+			System.out.println();
+		} else {
+			for (Film film : filmList) {
+				System.out.println(film);
+				System.out.println("");
+			}
+		}
+		
+	}
+
+	private void idSearch(Scanner input) {
+		System.out.println("Enter film id: ");
+		int filmId = input.nextInt();
+		System.out.println();
+		Film film = db.findFilmById(filmId);
+		if (film==null) {
+		System.err.println("ID not found.");
+		System.out.println();
+		} else {
+			System.out.println(film);
+		}
+	}
+
 	private void displayMenu() {
-		System.out.println("------------------------");
-		System.out.println("1. Search film by id.");
-		System.out.println("2. Search film by keyword.");
+		System.out.println("-------------------------------");
+		System.out.println("1. Search film by ID.");
+		System.out.println("2. Search film by Keyword.");
 		System.out.println("3. Exit.");
 		System.out.println("Please select an option number.");
-		System.out.println("------------------------");
+		System.out.println("-------------------------------");
 		System.out.println("");
 		
 	}

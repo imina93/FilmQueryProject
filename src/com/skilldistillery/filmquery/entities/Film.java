@@ -33,6 +33,8 @@ public class Film {
 		builder.append(rating);
 //		builder.append(", specialFeatures=");
 //		builder.append(specialFeatures);
+		builder.append("\nLanguage");
+		builder.append("\n" + language);
 		builder.append("\nCredits");
 		builder.append("\n" + filmCast);
 		builder.append(".");
@@ -50,10 +52,11 @@ public class Film {
 	private String rating;
 	private String specialFeatures;
 	private List<Actor> filmCast;
+	private Language language;
 	
 	
 	public Film(int id, String title, String description, int releaseYear, int languageId, int rentalDuration,
-			double rentalRate, int length, double replacementCost, String rating, String specialFeatures) {
+			double rentalRate, int length, double replacementCost, String rating, String specialFeatures, Language language) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -66,6 +69,7 @@ public class Film {
 		this.replacementCost = replacementCost;
 		this.rating = rating;
 		this.specialFeatures = specialFeatures;
+		this.language = language;
 	}
 	@Override
 	public int hashCode() {
@@ -159,6 +163,13 @@ public class Film {
 	}
 	public void setFilmCast(List<Actor> filmCast) {
 		this.filmCast = filmCast;
+	}
+	public Language getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(Language language) {
+		this.language = language;
 	}
 	
 }

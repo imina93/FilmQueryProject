@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.skilldistillery.filmquery.entities.Actor;
 import com.skilldistillery.filmquery.entities.Film;
+import com.skilldistillery.filmquery.entities.Language;
 
 public class DatabaseAccessorObject implements DatabaseAccessor {
 	private static final String URL = "jdbc:mysql://localhost:3306/sdvid?useSSL=false";
@@ -30,14 +31,17 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		try {
 			Connection conn = DriverManager.getConnection(URL, user, pass);
 
-			String sql = "SELECT id, title, description, release_year,"
-					+ " language_id, rental_duration, rental_rate, length,"
-					+ " replacement_cost, rating, special_features FROM film WHERE id = ?";
+			String sql = "SELECT film.id, film.title, film.description, film.release_year,"
+					+ " film.language_id, film.rental_duration, film.rental_rate, film.length,"
+					+ " film.replacement_cost, film.rating, film.special_features, language.name"
+					+ " FROM film JOIN language ON language.id = film.language_id WHERE film.id = ?";
+
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, filmId);
 			ResultSet filmResult = stmt.executeQuery();
 			if (filmResult.next()) {
 				film = new Film();
+				Language language = new Language();
 				film.setId(filmResult.getInt("id"));
 				film.setTitle(filmResult.getString("title"));
 				film.setDescription(filmResult.getString("description"));
@@ -49,6 +53,8 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 				film.setReplacementCost(filmResult.getDouble("replacement_cost"));
 				film.setRating(filmResult.getString("rating"));
 				film.setSpecialFeatures(filmResult.getString("special_features"));
+				language.setName(filmResult.getString("language.name"));
+				film.setLanguage(language);
 				DatabaseAccessorObject db = new DatabaseAccessorObject();
 				List<Actor> cast = db.findActorsByFilmId(filmId);
 				film.setFilmCast(cast);      
@@ -63,21 +69,28 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		}
 		return film;
 	}
-	public Film findFilmByKeyword(String keyword) {
-		Film film = null;
+	@Override
+	public List<Film> findFilmByKeyword(String keyword) {
+		 List<Film> filmList = new ArrayList<Film>();
 		String searchPhrase = keyword;
 		try {
 			Connection conn = DriverManager.getConnection(URL, user, pass);
 
-			String sql = "SELECT title, description FROM film WHERE (title LIKE ? OR description LIKE ?);";
-		
+			String sql = "SELECT film.id, film.title, film.description, film.release_year,"
+					+ " film.language_id, film.rental_duration, film.rental_rate, film.length,"
+					+ " film.replacement_cost, film.rating, film.special_features, language.name "
+					+ " FROM film JOIN language ON language.id = film.language_id"
+					+ " WHERE film.title LIKE ? OR film.description LIKE ?;";
+	
+
 			PreparedStatement stmt = conn.prepareStatement(sql);
-			stmt.setString(1, "'%" + searchPhrase + "%'");
-			stmt.setString(2, "'%" + searchPhrase + "%'");
+			stmt.setString(1, "%" + searchPhrase + "%");
+			stmt.setString(2, "%" + searchPhrase + "%");
 			ResultSet filmResult = stmt.executeQuery();
 		
-			if (filmResult.next()) {
-				film = new Film();
+			while (filmResult.next()) {
+				Film film = new Film();
+				Language language = new Language();
 				film.setId(filmResult.getInt("id"));
 				film.setTitle(filmResult.getString("title"));
 				film.setDescription(filmResult.getString("description"));
@@ -89,12 +102,10 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 				film.setReplacementCost(filmResult.getDouble("replacement_cost"));
 				film.setRating(filmResult.getString("rating"));
 				film.setSpecialFeatures(filmResult.getString("special_features"));
-				DatabaseAccessorObject db = new DatabaseAccessorObject();
-				int filmId = film.getId();
-				List<Actor> cast = db.findActorsByFilmId(filmId);
-				film.setFilmCast(cast);
-			} else {
-				System.out.println("Error");
+				language.setName(filmResult.getString("language.name"));
+				film.setLanguage(language);
+				film.setFilmCast(findActorsByFilmId(filmResult.getInt("id")));
+				filmList.add(film);
 			}
 			filmResult.close();
 			stmt.close();
@@ -103,7 +114,7 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 			System.err.println("Database error:");
 			System.err.println(e);
 		}
-		return film;
+		return filmList;
 	
 	}
 
@@ -161,5 +172,5 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 	
 	// Need to return explanation if film search is Null
 	// Need to display language
-	// Need to fix search by keyword
+	// Need to fix keyword search
 }
